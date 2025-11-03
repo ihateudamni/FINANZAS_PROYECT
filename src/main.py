@@ -3,9 +3,19 @@ from fastapi import FastAPI, Depends, Header, Request, Response
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.exceptions import HTTPException
 from jose import jwt
+from sqlmodel import SQLModel
+from src.config.db import engine
+from src import models
+from src.routes.item_router import items_router
+
+SQLModel.metadata.create_all(engine)
 
 app = FastAPI()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+#ROUTER de inicio de sesion
+app.include_router(items_router)
+
 
 users = {
     "pablo": {"username": "pablo", "email": "pablo@gmail.com", "password": "fakepass"},
