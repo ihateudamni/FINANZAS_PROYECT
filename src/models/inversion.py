@@ -13,7 +13,7 @@ class InversionCreateIn(SQLModel):
     tipo_inversion: str = Field()
     cantidad_inversion: float = Field()
     fecha_inversion: Optional[date] = Field(default_factory=date.today)
-    descripcion: Optional[str] = None  # ✅ AGREGADO
+    descripcion: Optional[str] = None 
 
 class InversionUpdateIn(SQLModel):
     tipo_inversion: Optional[str] = None

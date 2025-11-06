@@ -13,7 +13,7 @@ class GastoCreateIn(SQLModel):
     tipo_gasto: str = Field()
     cantidad_gasto: float = Field()
     fecha_gasto: Optional[date] = Field(default_factory=date.today)
-    descripcion: Optional[str] = None  # ✅ AGREGADO
+    descripcion: Optional[str] = None 
 
 class GastoUpdateIn(SQLModel):
     tipo_gasto: Optional[str] = None
