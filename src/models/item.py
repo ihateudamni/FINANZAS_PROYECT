@@ -1,5 +1,9 @@
-from sqlmodel import SQLModel, Field
-from typing import Optional
+from __future__ import annotations
+from sqlmodel import Relationship, SQLModel, Field
+from typing import Optional, List
+from .inversion import Inversion 
+from .gasto import Gasto
+
 
 # --- 1. ItemBase: Base para la DB (incluye rol por defecto) ---
 class ItemBase(SQLModel):
@@ -30,6 +34,10 @@ class ItemCreateOut(SQLModel):
     correo: str = Field()
     rol: str = Field()
 
-# --- 5. Item: Modelo de TABLA para SQLModel ---
-class Item(ItemBase, table=True):
+    # 🔑 Se mantienen las cadenas de texto (correcto para SQLModel)
+class Item(ItemBase, table=True, extend_existing=True): 
     id: Optional[int] = Field(default=None, primary_key=True)
+
+    # 🎯 USAR LA CLASE DIRECTA (SIN COMILLAS)
+    inversiones: List[Inversion] = Relationship(back_populates="usuario")
+    gastos: List[Gasto] = Relationship(back_populates="usuario")

@@ -1,4 +1,3 @@
-# main.py (Modificado)
 import os
 from typing import Annotated
 from fastapi import FastAPI, Depends, Header, Request, Response, HTTPException, Query
@@ -10,6 +9,9 @@ from src.routes.db_session import SessionDep
 from src.config.db import engine
 from src import models
 from src.routes.item_router import items_router
+# 🔑 Importar los nuevos routers de finanzas
+from src.routes.inversion_router import inversion_router
+from src.routes.gasto_router import gasto_router
 from pathlib import Path 
 
 # 💡 CAMBIO CLAVE: Importar dependencias de seguridad desde el nuevo módulo
@@ -34,14 +36,16 @@ app = FastAPI()
 # --- ROUTER DE ITEMS (CRUD) (Se mantiene) ---
 app.include_router(items_router)
 
+# 🔑 INCLUIR NUEVOS ROUTERS (FINANZAS)
+app.include_router(inversion_router)
+app.include_router(gasto_router)
+
 # --- TOKEN Y AUTENTICACIÓN (Solo queda encode_token) ---
 
 def encode_token(payload: dict) -> str:
     """Crea un JWT para la sesión."""
     token = jwt.encode(payload, "my-secret", algorithm="HS256")
     return token
-
-# ❌ Se eliminan decode_token y verify_admin_role
 
 # --- LOGIN (Modificado para usar ADMIN_USERNAME y ADMIN_ROL de la importación) ---
 
@@ -72,7 +76,8 @@ def login(
     if not user or form_data.password != user.contraseña:
         raise HTTPException(status_code=400, detail="Nombre de usuario o contraseña incorrectos")
 
-    token = encode_token({"username": user.nombre, "email": user.correo, "rol": user.rol})
+    # 💡 CAMBIO CLAVE: Incluir el ID del usuario en el token para que sea usado por decode_token
+    token = encode_token({"username": user.nombre, "email": user.correo, "rol": user.rol, "sub": user.id})
     return {"access_token": token, "token_type": "bearer"}
 
 
@@ -89,3 +94,10 @@ def admin_dashboard(
 ):
     """Endpoint solo accesible para usuarios con rol 'admin'."""
     return {"message": f"Bienvenido al Dashboard de Administrador, {user['username']}", "rol": user['rol']}
+
+@app.get("/", include_in_schema=False)
+async def serve_admit_html():
+    """Sirve el archivo HTML principal."""
+    if ABSOLUTE_FILE_PATH.is_file():
+        return FileResponse(ABSOLUTE_FILE_PATH, media_type="text/html")
+    raise HTTPException(status_code=404, detail="HTML template not found")
