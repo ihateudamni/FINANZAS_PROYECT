@@ -30,8 +30,6 @@ class InversionRead(SQLModel):
 
 class Inversion(InversionBase, table = True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    # ... otras columnas
+
     usuario_id: Optional[int] = Field(default=None, foreign_key="item.id")
-    
-    # ✅ Usar Optional[CADENA]
     usuario: Optional["Item"] = Relationship(back_populates="inversiones")

@@ -31,8 +31,6 @@ class GastoRead(SQLModel):
 
 class Gasto(GastoBase, table = True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    # Clave foránea al usuario (Item)
     usuario_id: Optional[int] = Field(default=None, foreign_key="item.id")
     
-    # ✅ Usar Optional[CADENA]
     usuario: Optional["Item"] = Relationship(back_populates="gastos")

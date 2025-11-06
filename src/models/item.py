@@ -38,6 +38,6 @@ class ItemCreateOut(SQLModel):
 class Item(ItemBase, table=True, extend_existing=True): 
     id: Optional[int] = Field(default=None, primary_key=True)
 
-    # 🎯 USAR LA CLASE DIRECTA (SIN COMILLAS)
+    # ✅ Usar List[Clase_Importada] sin Mapped y sin comillas
     inversiones: List[Inversion] = Relationship(back_populates="usuario")
     gastos: List[Gasto] = Relationship(back_populates="usuario")
