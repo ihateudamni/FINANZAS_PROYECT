@@ -12,6 +12,7 @@ from src.routes.item_router import items_router
 # 🔑 Importar los nuevos routers de finanzas
 from src.routes.inversion_router import inversion_router
 from src.routes.gasto_router import gasto_router
+from src.routes.analisis_router import analisis_router
 from pathlib import Path 
 
 # 💡 CAMBIO CLAVE: Importar dependencias de seguridad desde el nuevo módulo
@@ -26,19 +27,17 @@ ABSOLUTE_FILE_PATH = TEMPLATES_DIR / "admit.html"
 # ADMIN_USERNAME y ADMIN_ROL ahora vienen de dependencies.py
 ADMIN_PASSWORD = "super_secure_admin_password"
 
-
 # --- CONFIGURACIÓN INICIAL (Se mantiene) ---
 SQLModel.metadata.create_all(engine)
 
+# ✅ PRIMERO: Crear la instancia de FastAPI
 app = FastAPI()
-# oauth2_scheme ahora se importa de dependencies.py
 
-# --- ROUTER DE ITEMS (CRUD) (Se mantiene) ---
+# ✅ DESPUÉS: Incluir los routers
 app.include_router(items_router)
-
-# 🔑 INCLUIR NUEVOS ROUTERS (FINANZAS)
 app.include_router(inversion_router)
 app.include_router(gasto_router)
+app.include_router(analisis_router)  # ✅ Ahora sí está en el lugar correcto
 
 # --- TOKEN Y AUTENTICACIÓN (Solo queda encode_token) ---
 
@@ -110,18 +109,19 @@ def login(
 
 
 @app.get("/users/profile", tags=['login'])
-def profile(my_user: Annotated[dict, Depends(decode_token)]): # decode_token ahora de dependencies.py
+def profile(my_user: Annotated[dict, Depends(decode_token)]):
     """Endpoint protegido: devuelve el perfil del usuario autenticado."""
     return my_user
 
 
 @app.get("/admin/dashboard", tags=['admin'])
 def admin_dashboard(
-    is_admin: Annotated[bool, Depends(verify_admin_role)], # verify_admin_role ahora de dependencies.py
+    is_admin: Annotated[bool, Depends(verify_admin_role)],
     user: Annotated[dict, Depends(decode_token)]
 ):
     """Endpoint solo accesible para usuarios con rol 'admin'."""
     return {"message": f"Bienvenido al Dashboard de Administrador, {user['username']}", "rol": user['rol']}
+
 
 @app.get("/", include_in_schema=False)
 async def serve_admit_html():
